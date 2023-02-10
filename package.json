@@ -1,6 +1,6 @@
 {
   "name": "@liuqiang1357/react-use-storage",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "React Hook to handle local and session storage",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",

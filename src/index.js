@@ -50,12 +50,9 @@ const useStorage = (storage) => (key, defaultValue) => {
             if (detail.key === key) {
                 const lraw = storage.getItem(key);
 
-                lraw !== raw &&
-                    setValue(
-                        JSON.parse(
-                            lraw != null ? JSON.parse(lraw) : defaultValue,
-                        ),
-                    );
+                if (lraw !== raw) {
+                    setValue(lraw != null ? JSON.parse(lraw) : defaultValue);
+                }
             }
         };
 
