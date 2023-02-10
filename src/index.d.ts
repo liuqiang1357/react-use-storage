@@ -1,11 +1,19 @@
-export type StorageHook<V> = [V, (value: V) => void, () => void];
+export type StorageHook<V> = [V, (value: V) => void];
 
-export declare const useLocalStorage: <V>(
+export declare function useLocalStorage<V>(
     key: string,
-    defaultValue?: V,
-) => StorageHook<V>;
+    defaultValue: V,
+): StorageHook<V>;
 
-export declare const useSessionStorage: <V>(
+export declare function useLocalStorage<V = undefined>(
     key: string,
-    defaultValue?: V,
-) => StorageHook<V>;
+): StorageHook<V | undefined>;
+
+export declare function useSessionStorage<V>(
+    key: string,
+    defaultValue: V,
+): StorageHook<V>;
+
+export declare function useSessionStorage<V = undefined>(
+    key: string,
+): StorageHook<V | undefined>;

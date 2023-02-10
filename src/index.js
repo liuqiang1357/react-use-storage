@@ -22,17 +22,19 @@ try {
 }
 
 // SSR Storage simply returns defaultValue
-const useSSRStorage = () => (_, defaultValue) => [defaultValue];
+const useSSRStorage = () => (_, defaultValue) => [defaultValue, () => {}];
 
 const useStorage = (storage) => (key, defaultValue) => {
     const raw = storage.getItem(key);
 
-    const [value, setValue] = useState(raw ? JSON.parse(raw) : defaultValue);
+    const [value, setValue] = useState(
+        raw != null ? JSON.parse(raw) : defaultValue,
+    );
 
     const updater = useCallback(
-        (updatedValue, remove = false) => {
+        (updatedValue) => {
             setValue(updatedValue);
-            storage[remove ? "removeItem" : "setItem"](
+            storage[updatedValue == null ? "removeItem" : "setItem"](
                 key,
                 JSON.stringify(updatedValue),
             );
@@ -43,14 +45,17 @@ const useStorage = (storage) => (key, defaultValue) => {
         [key],
     );
 
-    defaultValue != null && !raw && updater(defaultValue);
-
     useEffect(() => {
         const listener = ({detail}) => {
             if (detail.key === key) {
                 const lraw = storage.getItem(key);
 
-                lraw !== raw && setValue(JSON.parse(lraw));
+                lraw !== raw &&
+                    setValue(
+                        JSON.parse(
+                            lraw != null ? JSON.parse(lraw) : defaultValue,
+                        ),
+                    );
             }
         };
 
@@ -58,7 +63,7 @@ const useStorage = (storage) => (key, defaultValue) => {
         return () => evtTarget.removeEventListener("storage_change", listener);
     });
 
-    return [value, updater, () => updater(null, true)];
+    return [value, updater];
 };
 
 export const useLocalStorage = IS_BROWSER
