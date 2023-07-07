@@ -27,9 +27,7 @@ const useSSRStorage = () => (_, defaultValue) => [defaultValue, () => {}];
 const useStorage = (storage) => (key, defaultValue) => {
     const raw = storage.getItem(key);
 
-    const [value, setValue] = useState(
-        raw != null ? JSON.parse(raw) : defaultValue,
-    );
+    const [value, setValue] = useState(raw != null ? JSON.parse(raw) : null);
 
     const updater = useCallback(
         (updatedValue) => {
@@ -37,9 +35,10 @@ const useStorage = (storage) => (key, defaultValue) => {
                 key,
                 JSON.stringify(updatedValue),
             );
-            setValue(updatedValue);
             evtTarget.dispatchEvent(
-                new CustomEvent("storage_change", {detail: {key}}),
+                new CustomEvent("storage_change", {
+                    detail: {key, value: updatedValue},
+                }),
             );
         },
         [key],
@@ -47,20 +46,16 @@ const useStorage = (storage) => (key, defaultValue) => {
 
     useEffect(() => {
         const listener = ({detail}) => {
-            if (detail.key === key) {
-                const lraw = storage.getItem(key);
-
-                if (lraw !== raw) {
-                    setValue(lraw != null ? JSON.parse(lraw) : defaultValue);
-                }
+            if (detail.key === key && detail.value !== value) {
+                setValue(detail.value);
             }
         };
 
         evtTarget.addEventListener("storage_change", listener);
         return () => evtTarget.removeEventListener("storage_change", listener);
-    });
+    }, [key, value]);
 
-    return [value, updater];
+    return [value != null ? value : defaultValue, updater];
 };
 
 export const useLocalStorage = IS_BROWSER
