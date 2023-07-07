@@ -33,11 +33,11 @@ const useStorage = (storage) => (key, defaultValue) => {
 
     const updater = useCallback(
         (updatedValue) => {
-            setValue(updatedValue);
             storage[updatedValue == null ? "removeItem" : "setItem"](
                 key,
                 JSON.stringify(updatedValue),
             );
+            setValue(updatedValue);
             evtTarget.dispatchEvent(
                 new CustomEvent("storage_change", {detail: {key}}),
             );
