@@ -25,9 +25,7 @@ try {
 const useSSRStorage = () => (_, defaultValue) => [defaultValue, () => {}];
 
 const useStorage = (storage) => (key, defaultValue) => {
-    const raw = storage.getItem(key);
-
-    const [value, setValue] = useState(raw != null ? JSON.parse(raw) : null);
+    const [value, setValue] = useState(null);
 
     const updater = useCallback(
         (updatedValue) => {
@@ -43,6 +41,12 @@ const useStorage = (storage) => (key, defaultValue) => {
         },
         [key],
     );
+
+    useEffect(() => {
+        const raw = storage.getItem(key);
+
+        setValue(raw != null ? JSON.parse(raw) : null);
+    }, [key]);
 
     useEffect(() => {
         const listener = ({detail}) => {
