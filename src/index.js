@@ -25,7 +25,11 @@ try {
 const useSSRStorage = () => (_, defaultValue) => [defaultValue, () => {}];
 
 const useStorage = (storage) => (key, defaultValue) => {
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState(() => {
+        const raw = storage.getItem(key);
+
+        return raw != null ? JSON.parse(raw) : null;
+    });
 
     const updater = useCallback(
         (updatedValue) => {
